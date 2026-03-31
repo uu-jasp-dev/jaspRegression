@@ -1965,8 +1965,13 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   UseMethod(".linregGetParameterNames", model)
 }
 
+# .linregGetParameterNames.lm <- function(model) {
+#   return(colnames(model.matrix(model)))
+# }
+
+## This should do the same thing as the above, but also work with pooledlm objects
 .linregGetParameterNames.lm <- function(model) {
-  return(colnames(model.matrix(model)))
+  return(names(coef(model)))
 }
 
 .linregGetParameterNames.list <- function(model) {
