@@ -26,6 +26,8 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     .linregCheckErrors(dataset, options)
   }
 
+  .lmFunction <- .linregSetFittingFunction(options)
+
   modelContainer  <- .linregGetModelContainer(jaspResults, position = 1)
   model           <- .linregCalcModel(modelContainer, dataset, options, ready)
 
@@ -101,6 +103,9 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   if ((options[["optimizationSolutionTable"]] || options[["optimizationPlot"]]) && is.null(modelContainer[["responseOptimizer"]]))
     .linregResponseOptimizer(modelContainer, finalModel, dataset, options, ready)
 }
+
+.linregSetFittingFunction <- function(options)
+  ifelse(is.null(options$lmFunction), stats::lm, options$lmFunction)
 
 #TODO: capture crashes with many interactions between factors!
 .linregReadDataset <- function(dataset, options, onlyCompleteCases = TRUE) {
@@ -992,7 +997,8 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     thisModelTerms <- .linregGetPredictors(modelTerms[[i]][["components"]])
     formula <- .linregGetFormula(dependent, thisModelTerms, options$interceptTerm, options$covariates, options$quadraticTerms)
     if (!is.null(formula)) {
-      fit <- stats::lm(formula, data = dataset, weights = weights, x = TRUE)
+      # fit <- stats::lm(formula, data = dataset, weights = weights, x = TRUE)
+      fit <- .lmFunction(formula = formula, data = dataset, weights = weights, x = TRUE)
       model[[length(model) + 1]] <- list(fit = fit, predictors = thisModelTerms, number = i)
     }
   }
