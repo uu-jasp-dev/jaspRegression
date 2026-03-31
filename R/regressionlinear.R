@@ -935,10 +935,21 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   predictorsInNull  <- .linregGetPredictors(options$modelTerms[[1]][["components"]])
   predictorsInFull  <- .linregGetPredictors(options$modelTerms[[nModels]][["components"]]) # these include the null terms
 
+  ## Do some hacky faffery to get weights when 'dataset' may be a list
+  if (is.data.frame(dataset)) {
+    dat1 <- dataset
+  } else if (is.list(dataset)) {
+    dat1 <- dataset[[1]]
+  } else {
+    stop("I don't know how to handle a 'dataset' that's not a data frame or list")
+  }
+
   if (options$weights != "")
-    weights <- dataset[[options$weights]]
+    weights <- dat1[[options$weights]]
   else
-    weights <- rep(1, length(dataset[[dependent]]))
+    weights <- rep(1, length(dat1[[dependent]]))
+
+  rm(dat1) # clean up after our faffing
 
   if (options$method %in% c("backward", "forward", "stepwise") && length(predictorsInFull) > 0)
     model <- .linregGetModelSteppingMethod(dependent, predictorsInFull, predictorsInNull, dataset, options, weights)
