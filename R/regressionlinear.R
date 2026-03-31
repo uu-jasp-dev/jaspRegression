@@ -105,7 +105,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
 }
 
 .linregSetFittingFunction <- function(options) {
-    value = ifelse(is.null(options$lmFunction), stats::lm, options$lmFunction),
+    ifelse(is.null(options$lmFunction), stats::lm, options$lmFunction)
 }
 
 #TODO: capture crashes with many interactions between factors!
