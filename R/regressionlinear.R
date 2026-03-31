@@ -26,7 +26,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     .linregCheckErrors(dataset, options)
   }
 
-  .linregSetFittingFunction(options)
+  .lmFunction <- .linregSetFittingFunction(options)
 
   modelContainer  <- .linregGetModelContainer(jaspResults, position = 1)
   model           <- .linregCalcModel(modelContainer, dataset, options, ready)
@@ -105,10 +105,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
 }
 
 .linregSetFittingFunction <- function(options) {
-  assign(".lmFunction",
     value = ifelse(is.null(options$lmFunction), stats::lm, options$lmFunction),
-    pos = parent.env()
-  )
 }
 
 #TODO: capture crashes with many interactions between factors!
