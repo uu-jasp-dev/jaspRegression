@@ -1024,9 +1024,10 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(model)
 }
 
-.linregBackwardRegression <- function(dependent, predictors, predictorsInNull, data, options, weights) {
+.linregBackwardRegression <- function(dependent, predictors, predictorsInNull, data, options, weights, lmFunction) {
   formula <- .linregGetFormula(dependent, predictors, options$interceptTerm)
-  fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+  # fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+  fit     <- lmFunction(formula, data = data, weights = weights, x = TRUE)
   model   <- list(list(fit = fit, predictors = predictors))
 
   candidatePredictors <- setdiff(predictors, predictorsInNull)
@@ -1044,11 +1045,12 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(model)
 }
 
-.linregForwardRegression <- function(dependent, predictors, predictorsInNull, data, options, weights) {
+.linregForwardRegression <- function(dependent, predictors, predictorsInNull, data, options, weights, lmFunction) {
   model <- list()
   if (options$interceptTerm || length(predictorsInNull) > 0) {
     formula <- .linregGetFormula(dependent, predictorsInNull, options$interceptTerm)
-    fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+    # fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+    fit     <- lmFunction(formula, data = data, weights = weights, x = TRUE)
     model   <- list(list(fit = fit, predictors = predictorsInNull))
   }
 
@@ -1075,11 +1077,12 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(model)
 }
 
-.linregStepwiseRegression <- function(dependent, predictors, predictorsInNull, data, options, weights) {
+.linregStepwiseRegression <- function(dependent, predictors, predictorsInNull, data, options, weights, lmFunction) {
   model <- list()
   if (options$interceptTerm || length(predictorsInNull) > 0) {
     formula <- .linregGetFormula(dependent, predictorsInNull, options$interceptTerm)
-    fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+    # fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+    fit     <- lmFunction(formula, data = data, weights = weights, x = TRUE)
     model   <- list(list(fit = fit, predictors = predictorsInNull))
   }
 
