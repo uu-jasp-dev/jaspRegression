@@ -918,26 +918,12 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   modelContainer[["descriptivesTable"]] <- descriptivesTable
 }
 
-.linregGetWeights <- function(dataset, options) {
-  if (is.data.frame(dataset)) {
-    if (options$weights != "") {
-      return(dataset[[options$weights]])
-    } else {
-      return(rep(1, nrow(dataset)))
-    }
-  }
-
-  if (is.list(dataset)) {
-    return(options$weights)
-    # if (options$weights != "") {
-    #   return(
-    #     lapply(dataset, "[[", x = options$weights)
-    #   )
-    # } else {
-    #   return(
-    #     lapply(dataset, function(x) rep(1, nrow(x)))
-    #   )
-    # }
+.linregGetWeights <- function(dataset, options, dependent) {
+  if (!is.data.frame(dataset) && is.list(dataset)) dataset <- dataset[[1]]
+  if (options$weights != "") {
+    return(dataset[[options$weights]])
+  } else {
+    return(rep(1, length(dataset[[dependent]])))
   }
 }
 
@@ -952,7 +938,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   }
   nModels           <- length(options$modelTerms)
   dependent         <- options$dependent
-  weights           <- .linregGetWeights(dataset, options)
+  weights           <- .linregGetWeights(dataset, options, dependent)
 
   predictorsInNull  <- .linregGetPredictors(options$modelTerms[[1]][["components"]])
   predictorsInFull  <- .linregGetPredictors(options$modelTerms[[nModels]][["components"]]) # these include the null terms
