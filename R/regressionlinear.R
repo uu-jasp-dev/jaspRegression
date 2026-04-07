@@ -26,7 +26,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     .linregCheckErrors(dataset, options)
   }
 
-  .linregSetLmFunction()
+  # .linregSetLmFunction()
 
   modelContainer  <- .linregGetModelContainer(jaspResults, position = 1)
   model           <- .linregCalcModel(modelContainer, dataset, options, ready)
@@ -918,7 +918,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   modelContainer[["descriptivesTable"]] <- descriptivesTable
 }
 
-.linregCalcModel <- function(modelContainer, dataset, options, ready) {
+.linregCalcModel <- function(modelContainer, dataset, options, ready, lmFunction = stats::lm) {
   if (!ready)
     return()
 
@@ -952,7 +952,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   if (options$method %in% c("backward", "forward", "stepwise") && length(predictorsInFull) > 0)
     model <- .linregGetModelSteppingMethod(dependent, predictorsInFull, predictorsInNull, dataset, options, weights)
   else
-    model <- .linregGetModelEnterMethod(dependent, modelTerms = options[["modelTerms"]], dataset, options, weights)
+    model <- .linregGetModelEnterMethod(dependent, modelTerms = options[["modelTerms"]], dataset, options, weights, lmFunction)
 
   for (i in seq_along(model)) {
     singleModel <- model[[i]]
@@ -1000,7 +1000,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(model)
 }
 
-.linregGetModelEnterMethod <- function(dependent, modelTerms, dataset, options, weights) {
+.linregGetModelEnterMethod <- function(dependent, modelTerms, dataset, options, weights, lmFunction) {
   model <- list()
 
   for (i in seq_along(modelTerms)) {
@@ -1008,7 +1008,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     formula <- .linregGetFormula(dependent, thisModelTerms, options$interceptTerm, options$covariates, options$quadraticTerms)
     if (!is.null(formula)) {
       # fit <- stats::lm(formula, data = dataset, weights = weights, x = TRUE)
-      fit <- .lmFunction(formula = formula, data = dataset, weights = weights, x = TRUE)
+      fit <- lmFunction(formula = formula, data = dataset, weights = weights, x = TRUE)
       model[[length(model) + 1]] <- list(fit = fit, predictors = thisModelTerms, number = i)
     }
   }
