@@ -958,7 +958,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   predictorsInFull  <- .linregGetPredictors(options$modelTerms[[nModels]][["components"]]) # these include the null terms
 
   if (options$method %in% c("backward", "forward", "stepwise") && length(predictorsInFull) > 0)
-    model <- .linregGetModelSteppingMethod(dependent, predictorsInFull, predictorsInNull, dataset, options, weights)
+    model <- .linregGetModelSteppingMethod(dependent, predictorsInFull, predictorsInNull, dataset, options, weights, lmFunction)
   else
     model <- .linregGetModelEnterMethod(dependent, modelTerms = options[["modelTerms"]], dataset, options, weights, lmFunction)
 
@@ -994,13 +994,13 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(model)
 }
 
-.linregGetModelSteppingMethod <- function(dependent, predictors, predictorsInNull, dataset, options, weights) {
+.linregGetModelSteppingMethod <- function(dependent, predictors, predictorsInNull, dataset, options, weights, lmFunction) {
   if (options$method == "backward")
-    model <- .linregBackwardRegression(dependent, predictors, predictorsInNull, dataset, options, weights)
+    model <- .linregBackwardRegression(dependent, predictors, predictorsInNull, dataset, options, weights, lmFunction)
   else if (options$method == "forward")
-    model <- .linregForwardRegression(dependent, predictors, predictorsInNull, dataset, options, weights)
+    model <- .linregForwardRegression(dependent, predictors, predictorsInNull, dataset, options, weights, lmFunction)
   else # stepwise
-    model <- .linregStepwiseRegression(dependent, predictors, predictorsInNull, dataset, options, weights)
+    model <- .linregStepwiseRegression(dependent, predictors, predictorsInNull, dataset, options, weights, lmFunction)
 
   for (i in seq_along(model))
     model[[i]] <- c(model[[i]], number = i)
