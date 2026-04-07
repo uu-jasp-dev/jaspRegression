@@ -928,15 +928,16 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   }
 
   if (is.list(dataset)) {
-    if (options$weights != "") {
-      return(
-        lapply(dataset, "[[", x = options$weights)
-      )
-    } else {
-      return(
-        lapply(dataset, function(x) rep(1, nrow(x)))
-      )
-    }
+    return(options$weights)
+    # if (options$weights != "") {
+    #   return(
+    #     lapply(dataset, "[[", x = options$weights)
+    #   )
+    # } else {
+    #   return(
+    #     lapply(dataset, function(x) rep(1, nrow(x)))
+    #   )
+    # }
   }
 }
 
