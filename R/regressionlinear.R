@@ -1132,7 +1132,8 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
 
   for (i in seq_along(candidatePredictors)) {
     formula <- .linregGetFormula(dependent, c(prevModel$predictors, candidatePredictors[i]), options$interceptTerm)
-    fit     <- lm(formula, data = data, weights = weights, x = TRUE)
+    # fit     <- lm(formula, data = data, weights = weights, x = TRUE)
+    fit     <- lmFunction(formula, data = data, weights = weights, x = TRUE)
     fValue  <- summary(fit)$coefficients[, "t value"]
     pValue  <- summary(fit)$coefficients[, "Pr(>|t|)"]
 
