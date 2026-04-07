@@ -1033,7 +1033,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   candidatePredictors <- setdiff(predictors, predictorsInNull)
   while (length(candidatePredictors) > 0) {
     prevModel <- model[[length(model)]]
-    nextModel <- .linregTryToRemoveOnePredictor(prevModel, dependent, predictorsInNull, data, options, weights)
+    nextModel <- .linregTryToRemoveOnePredictor(prevModel, dependent, predictorsInNull, data, options, weights, lmFunction)
 
     if (is.null(nextModel))
       break
@@ -1061,7 +1061,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     else
       prevModel <- model[[length(model)]]
 
-    nextModel <- .linregTryToAddOnePredictor(prevModel, dependent, candidatePredictors, predictorsInNull, data, options, weights)
+    nextModel <- .linregTryToAddOnePredictor(prevModel, dependent, candidatePredictors, predictorsInNull, data, options, weights, lmFunction)
 
     if (is.null(nextModel))
       break
@@ -1094,7 +1094,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     else
       prevToAddModel <- model[[length(model)]]
 
-    addStepModel <- .linregTryToAddOnePredictor(prevToAddModel, dependent, candidatePredictors, predictorsInNull, data, options, weights)
+    addStepModel <- .linregTryToAddOnePredictor(prevToAddModel, dependent, candidatePredictors, predictorsInNull, data, options, weights, lmFunction)
 
     # stop if we cant even perform a single add step
     if (is.null(addStepModel) && all(prevToAddModel[["predictors"]] %in% predictorsInNull))
@@ -1104,7 +1104,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
       model[[length(model) + 1]] <- addStepModel
 
     prevToRemoveModel <- model[[length(model)]]
-    removeStepModel   <- .linregTryToRemoveOnePredictor(prevToRemoveModel, dependent, predictorsInNull, data, options, weights)
+    removeStepModel   <- .linregTryToRemoveOnePredictor(prevToRemoveModel, dependent, predictorsInNull, data, options, weights, lmFunction)
 
     # stop if no predictor could be added or removed
     if (is.null(addStepModel) && is.null(removeStepModel))
@@ -1126,7 +1126,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(model)
 }
 
-.linregTryToAddOnePredictor <- function(prevModel = NULL, dependent, candidatePredictors, predictorsInNull, data, options, weights) {
+.linregTryToAddOnePredictor <- function(prevModel = NULL, dependent, candidatePredictors, predictorsInNull, data, options, weights, lmFunction) {
   fValues <- numeric(length(candidatePredictors))
   pValues <- numeric(length(candidatePredictors))
 
@@ -1170,12 +1170,13 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     return()
 
   formula <- .linregGetFormula(dependent, nextPredictors, options$interceptTerm)
-  fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+  # fit     <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+  fit     <- lmFunction(formula, data = data, weights = weights, x = TRUE)
 
   return(list(fit = fit, predictors = nextPredictors))
 }
 
-.linregTryToRemoveOnePredictor <- function(prevModel, dependent, predictorsInNull, data, options, weights) {
+.linregTryToRemoveOnePredictor <- function(prevModel, dependent, predictorsInNull, data, options, weights, lmFunction) {
   tValues <- summary(prevModel[["fit"]])$coefficients[ , "t value"]
   pValues <- summary(prevModel[["fit"]])$coefficients[ , "Pr(>|t|)"]
 
@@ -1212,7 +1213,8 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   else
     return() # we can't compute a null model because it has no intercept/nuisance variables, the algorithm is done
 
-  fit <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+  # fit <- stats::lm(formula, data = data, weights = weights, x = TRUE)
+  fit <- lmFunction(formula, data = data, weights = weights, x = TRUE)
 
   return(list(fit = fit, predictors = nextPredictors))
 }
