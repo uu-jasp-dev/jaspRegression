@@ -26,8 +26,6 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
     .linregCheckErrors(dataset, options)
   }
 
-  # .linregSetLmFunction()
-
   modelContainer  <- .linregGetModelContainer(jaspResults, position = 1)
   model           <- .linregCalcModel(modelContainer, dataset, options, ready)
 
@@ -103,8 +101,6 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   if ((options[["optimizationSolutionTable"]] || options[["optimizationPlot"]]) && is.null(modelContainer[["responseOptimizer"]]))
     .linregResponseOptimizer(modelContainer, finalModel, dataset, options, ready)
 }
-
-.linregSetLmFunction <- function(fun = stats::lm) assign(".lmFunction", fun, envir = parent.frame())
 
 #TODO: capture crashes with many interactions between factors!
 .linregReadDataset <- function(dataset, options, onlyCompleteCases = TRUE) {
@@ -918,12 +914,25 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   modelContainer[["descriptivesTable"]] <- descriptivesTable
 }
 
+# If 'dataset' is a list of imputed datasets, create a list of weights. Otherwise, return a vector.
 .linregGetWeights <- function(dataset, options, dependent) {
-  if (!is.data.frame(dataset) && is.list(dataset)) dataset <- dataset[[1]]
+  datasetIsList <- !is.data.frame(dataset) && is.list(dataset)
   if (options$weights != "") {
-    return(dataset[[options$weights]])
+    if (datasetIsList) {
+      return(
+        lapply(dataset, function(x) x[[options$weights]])
+      )
+    } else {
+      return(dataset[[options$weights]])
+    }
   } else {
-    return(rep(1, length(dataset[[dependent]])))
+    if (datasetIsList) {
+      return(
+        lapply(dataset, function(x) rep(1, nrow(x)))
+      )
+    } else {
+      return(rep(1, length(dataset[[dependent]])))
+    }
   }
 }
 
@@ -1967,7 +1976,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
 #   return(colnames(model.matrix(model)))
 # }
 
-## This should do the same thing as the above, but also work with pooledlm objects
+# This should do the same thing as the above, but also work with a pooledlm objects
 .linregGetParameterNames.lm <- function(model) {
   return(names(coef(model)))
 }
