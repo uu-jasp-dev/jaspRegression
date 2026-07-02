@@ -1885,7 +1885,10 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   for (predictor in predictors) {
     # drop the term from the formula and refit the model
     newFormula <- update(formula, as.formula(sprintf(". ~ . - %s", predictor)))
+
     data <- dataset # because we call lm(..., data = data) in .linregForwardRegression we need 'data' to exist.
+    weights <- .linregGetWeights(dataset, options, options$dependent)
+
     newFit <- update(fit, formula = newFormula)
     newR2 <- summary(newFit)[["r.squared"]]
 
@@ -2085,7 +2088,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   return(descriptives)
 }
 
-.linregGetPartialPlotData = function(predictor, predictors, dataset, options) {
+.linregGetPartialPlotData <- function(predictor, predictors, dataset, options) {
   predictors <- setdiff(predictors, predictor)
   if (length(predictors) == 0) {
     predictors <- NULL
@@ -2691,55 +2694,55 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
   xVar <- dataset[[predictor]]
   xVar <- stats::na.omit(xVar)
 
-  means_ls = list()
+  means_ls <- list()
   if (length(options[["factors"]]) > 0) {
     for (var in options[["factors"]]) {
-      column_value = dataset[[var]]
-      column_levels = levels(column_value)
-      means_ls[[var]] = column_levels[1]
+      column_value <- dataset[[var]]
+      column_levels <- levels(column_value)
+      means_ls[[var]] <- column_levels[1]
     }
   }
 
   if (length(options[['covariates']]) > 0) {
     for (var in options[['covariates']]) {
-      column_value = dataset[[var]]
-      column_mean = mean(column_value, na.rm = TRUE)
-      means_ls[[var]] = column_mean
+      column_value <- dataset[[var]]
+      column_mean <- mean(column_value, na.rm = TRUE)
+      means_ls[[var]] <- column_mean
     }
   }
 
-  means_ls[[predictor]] = NULL
+  means_ls[[predictor]] <- NULL
 
-  dd_sim = data.frame(predictor = xVar)
-  colnames(dd_sim) = predictor
+  dd_sim <- data.frame(predictor = xVar)
+  colnames(dd_sim) <- predictor
 
   if (length(means_ls) > 0) {
-    dd_sim = cbind(dd_sim, means_ls)
+    dd_sim <- cbind(dd_sim, means_ls)
   }
 
-  fitted = predict(fit, newdata = dd_sim, interval = "none")
+  fitted <- predict(fit, newdata = dd_sim, interval = "none")
 
   if (options$marginalPlotCi == TRUE) {
-    matrix_conf = predict(fit, newdata = dd_sim, interval = "confidence", level = options[["marginalPlotCiLevel"]])
-    conf_min = matrix_conf[, 'lwr']
-    conf_max = matrix_conf[, 'upr']
+    matrix_conf <- predict(fit, newdata = dd_sim, interval = "confidence", level = options[["marginalPlotCiLevel"]])
+    conf_min <- matrix_conf[, 'lwr']
+    conf_max <- matrix_conf[, 'upr']
   } else {
-    conf_min = NULL
-    conf_max = NULL
+    conf_min <- NULL
+    conf_max <- NULL
   }
 
   if (options$marginalPlotPredictionInterval == TRUE) {
-    matrix_pred = predict(
+    matrix_pred <- predict(
       fit,
       newdata = dd_sim,
       interval = "prediction",
       level = options[["marginalPlotPredictionIntervalLevel"]]
     )
-    pred_min = matrix_pred[, 'lwr']
-    pred_max = matrix_pred[, 'upr']
+    pred_min <- matrix_pred[, 'lwr']
+    pred_max <- matrix_pred[, 'upr']
   } else {
-    pred_min = NULL
-    pred_max = NULL
+    pred_min <- NULL
+    pred_max <- NULL
   }
 
   .linregInsertPlot(
@@ -2802,7 +2805,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
       )
     }
   } else {
-    confidenceBounds = NULL
+    confidenceBounds <- NULL
   }
 
   if (!is.null(pred_min)) {
@@ -2858,7 +2861,7 @@ RegressionLinearInternal <- function(jaspResults, dataset = NULL, options) {
 # adjusted precision bug (alpha close to 1 causes some boot.ci type to crash)
 .boot.pval <- function(boot_res, type = "perc", theta_null = 0, pval_precision = NULL, ...) {
   if (is.null(pval_precision)) {
-    pval_precision = 1 / boot_res$R
+    pval_precision <- 1 / boot_res$R
   }
 
   # Create a sequence of alphas:
